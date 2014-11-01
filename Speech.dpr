@@ -23,8 +23,8 @@ begin
   with TIniFile.Create(_DefaultIni) do
   try
     OpVoice:= ReadString(cSec, 'Voice', '');
-    OpSpeed:= ReadInteger(cSec, 'Speed', 0);
-    OpVol:= ReadInteger(cSec, 'Vol', 100);
+    OpSpeed:= ReadInteger(cSec, 'Speed', 10);
+    OpVol:= ReadInteger(cSec, 'Vol', 80);
   finally
     Free
   end;
@@ -48,7 +48,6 @@ const
   cMaxShow = 1500;
 var
   L: TStrings;
-  Eng: string;
 begin
   if Length(S)<cMinLen then
   begin
@@ -58,12 +57,10 @@ begin
 
   SpeechInit;
   L:= GetEngines;
-  if (L=nil) or (L.Count<1) then Exit;
+  if (L=nil) or (L.Count=0) then Exit;
   if OpVoice='' then
-    Eng:= L[0]
-  else
-    Eng:= OpVoice;
-  SpeechSelectEngine(Eng);
+    OpVoice:= L[0];
+  SpeechSelectEngine(OpVoice);
 
   if OpSpeed>0 then
     SetSpeed(OpSpeed);

@@ -2,7 +2,7 @@ unit msp;
 
 interface
 uses
-  SysUtils, Windows, Classes, sapi4, sapi5cut, ActiveX;
+  Windows, SysUtils, Classes, sapi4, sapi5cut, ActiveX;
 
 const
   NotSelected = -1;
@@ -103,7 +103,7 @@ type
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Speak(const Text: Widestring);
+    procedure Speak(const TextW: Widestring);
     procedure Stop;
     procedure Pause;
     procedure Resume;
@@ -334,13 +334,13 @@ begin
     end;
 end;
 
-procedure TMultiSpeech.Speak(const Text: Widestring);
+procedure TMultiSpeech.Speak(const TextW: Widestring);
 var
   TextA: string;
   SData: TSData;
   Flags: TOleEnum;
 begin
-  if Text = '' then Exit;
+  if TextW = '' then Exit;
   if Assigned(OnUserStart) then OnUserStart(Self);
   BufferPosition := 0;
   case CurrentInterface of
@@ -349,14 +349,14 @@ begin
       begin
         try
          Flags:= SVSFlagsAsync;
-         SAPI5.DefaultInterface.Speak(Text, Flags);
+         SAPI5.DefaultInterface.Speak(TextW, Flags);
         except
          AddError('SAPI 5 Speak fault: ');
         end;
       end;
     SAPI4Code:
       begin
-        TextA:= Text;
+        TextA:= TextW;
         SData.dwSize := Length(TextA) + 1;
         SData.pData := PChar(TextA);
         TTSCentral.TextData(CHARSET_TEXT, 1, SData, Pointer(TTSBufNotifySink), IID_ITTSBufNotifySink);

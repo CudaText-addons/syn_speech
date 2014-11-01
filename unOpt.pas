@@ -32,7 +32,6 @@ uses SpeechUnit;
 
 function DoOpt(var OpVoice: string; var OpSpeed, OpVol: Integer): boolean;
 var
-  i: Integer;
   Eng: TStrings;
 begin
   SpeechInit;
@@ -41,9 +40,12 @@ begin
   with TfmOpt.Create(nil) do
   try
     if Eng<>nil then
-      for i:= 0 to Eng.Count-1 do
-        edSrc.Items.Add(Eng[i]);
-    edSrc.ItemIndex:= edSrc.Items.IndexOf(OpVoice);
+      edSrc.Items.AddStrings(Eng);
+    if OpVoice<>'' then
+      edSrc.ItemIndex:= edSrc.Items.IndexOf(OpVoice)
+    else
+      if edSrc.Items.Count>0 then
+        edSrc.ItemIndex:= 0;
 
     edSpeed.MinValue:= GetMinSpeed;
     edSpeed.MaxValue:= GetMaxSpeed;
