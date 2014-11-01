@@ -2,11 +2,11 @@
 // Original code from https://sourceforge.net/projects/sapidll/
 // Modified by Alexey (SynWrite)
 
-unit SpeechUnit;
+unit SpeechApi;
 
 interface
 
-uses Windows, SysUtils, Classes, msp, sapi4, ActiveX;
+uses Windows, SysUtils, Classes, sapi4, SpeechMulti, ActiveX;
 
 type
   TSpeechEvent = procedure;
@@ -38,19 +38,22 @@ procedure SpeechSpeak(const Text: Widestring); stdcall;
 procedure SpeechSelectEngine(const EngineName: string); stdcall;
 procedure GetEngineInfo(const EngineName: string; var Info: TEngineInfo); stdcall;
 function GetEngines: TStrings; stdcall;
-//function GetEnginesCount: word; stdcall;
 function GetPitch: Word; stdcall;
 function GetSpeed: dword; stdcall;
 function GetVolume: dword; stdcall;
 procedure SetPitch(const Value: Word); stdcall;
 procedure SetSpeed(const Value: dword); stdcall;
 procedure SetVolume(const Value: dword); stdcall;
+
+{
+function GetEnginesCount: word; stdcall;
 function GetMaxPitch: Word; stdcall;
 function GetMaxSpeed: dword; stdcall;
 function GetMaxVolume: dword; stdcall;
 function GetMinPitch: Word; stdcall;
 function GetMinSpeed: dword; stdcall;
 function GetMinVolume: dword; stdcall;
+}
 procedure SpeechPause; stdcall;
 procedure SpeechResume; stdcall;
 procedure SpeechStop; stdcall;
@@ -211,38 +214,32 @@ end;
 
 function GetMaxPitch: Word; stdcall;
 begin
-  if Speech = nil then Result:= 0 else
-    Result := MaxPitch;
+  Result := MaxPitch;
 end;
 
 function GetMaxSpeed: dword; stdcall;
 begin
-  if Speech = nil then Result:= 0 else
-    Result := MaxSpeed;
+  Result := MaxSpeed;
 end;
 
 function GetMaxVolume: dword; stdcall;
 begin
-  if Speech = nil then Result:= 0 else
-    Result := MaxVolume;
+  Result := MaxVolume;
 end;
 
 function GetMinPitch: Word; stdcall;
 begin
-  if Speech = nil then Result:= 0 else
-    Result := MinPitch;
+  Result := MinPitch;
 end;
 
 function GetMinSpeed: dword; stdcall;
 begin
-  if Speech = nil then Result:= 0 else
-    Result := MinSpeed;
+  Result := MinSpeed;
 end;
 
 function GetMinVolume: dword; stdcall;
 begin
-  if Speech = nil then Result:= 0 else
-    Result := MinVolume;
+  Result := MinVolume;
 end;
 
 

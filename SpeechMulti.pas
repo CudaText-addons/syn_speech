@@ -1,4 +1,7 @@
-unit msp;
+// Original code from https://sourceforge.net/projects/sapidll/
+// Modified by Alexey (SynWrite)
+
+unit SpeechMulti;
 
 interface
 uses
@@ -9,8 +12,7 @@ const
   SAPI4Code = 0;
   SAPI5Code = 1;
 
-
-  DefaultVolume = 50;
+  DefaultVolume = 80;
   DefaultSpeed = 10;
   DefaultPitch = 0;
 
@@ -131,14 +133,10 @@ type
     property OnSelectEngine: TSelectEngineEvent read FOnSelectEngine write FOnSelectEngine;
     property OnStatusChange: TNotifyEvent read FOnStatusChange write FOnStatusChange;    
     property OnError: TErrorEvent read FOnError write FOnError;
-
-
   end;
 
-var
-  Sp: TMultiSpeech;
+procedure Register;
 
-  procedure Register;
 implementation
 
 

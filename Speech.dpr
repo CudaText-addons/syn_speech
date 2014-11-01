@@ -2,17 +2,19 @@ library Speech;
 
 uses
   Windows,
-  SpeechUnit,
+  SpeechApi,
   Classes,
   IniFiles,
-  ATSynPlugins in 'ATSynPlugins.pas',
+  ATSynPlugins,
   unOpt in 'unOpt.pas' {fmOpt};
 
 var
   _ActionProc: TSynAction = nil;
   _DefaultIni: string = '';
   OpVoice: string;
-  OpSpeed, OpVol: Integer;
+  OpSpeed,
+  OpPitch,
+  OpVol: Integer;
 
 const
   cCaption = 'Speech';
@@ -24,6 +26,7 @@ begin
   try
     OpVoice:= ReadString(cSec, 'Voice', '');
     OpSpeed:= ReadInteger(cSec, 'Speed', 10);
+    OpPitch:= ReadInteger(cSec, 'Pitch', 0);
     OpVol:= ReadInteger(cSec, 'Vol', 80);
   finally
     Free
@@ -36,6 +39,7 @@ begin
   try
     WriteString(cSec, 'Voice', OpVoice);
     WriteInteger(cSec, 'Speed', OpSpeed);
+    WriteInteger(cSec, 'Pitch', OpPitch);
     WriteInteger(cSec, 'Vol', OpVol);
   finally
     Free
@@ -62,10 +66,9 @@ begin
     OpVoice:= L[0];
   SpeechSelectEngine(OpVoice);
 
-  if OpSpeed>0 then
-    SetSpeed(OpSpeed);
-  if OpVol>0 then
-    SetVolume(OpVol);
+  SetSpeed(OpSpeed);
+  SetPitch(OpPitch);
+  SetVolume(OpVol);
 
   SpeechSpeak(S);
   MessageBoxW(0, PWChar(Copy(S, 1, cMaxShow)), cCaption, mb_taskmodal or mb_ok {or mb_iconinformation});
@@ -109,7 +112,7 @@ begin
     if SId='options' then
     begin
       LoadOpt;
-      if DoOpt(OpVoice, OpSpeed, OpVol) then
+      if DoOpt(OpVoice, OpSpeed, OpPitch, OpVol) then
         SaveOpt;
     end;
 

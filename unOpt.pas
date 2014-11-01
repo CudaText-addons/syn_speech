@@ -8,7 +8,7 @@ uses
 
 type
   TfmOpt = class(TForm)
-    edSrc: TComboBox;
+    edVo: TComboBox;
     Label1: TLabel;
     bOk: TButton;
     bCan: TButton;
@@ -16,21 +16,24 @@ type
     edSpeed: TSpinEdit;
     edVol: TSpinEdit;
     Label3: TLabel;
+    Label4: TLabel;
+    edPitch: TSpinEdit;
   private
     { Private declarations }
   public
     { Public declarations }
   end;
 
-function DoOpt(var OpVoice: string; var OpSpeed, OpVol: Integer): boolean;
+function DoOpt(var OpVoice: string; var OpSpeed, OpPitch, OpVol: Integer): boolean;
 
 implementation
 
-uses SpeechUnit;
+uses
+  SpeechApi, SpeechMulti;
 
 {$R *.dfm}
 
-function DoOpt(var OpVoice: string; var OpSpeed, OpVol: Integer): boolean;
+function DoOpt(var OpVoice: string; var OpSpeed, OpPitch, OpVol: Integer): boolean;
 var
   Eng: TStrings;
 begin
@@ -40,25 +43,29 @@ begin
   with TfmOpt.Create(nil) do
   try
     if Eng<>nil then
-      edSrc.Items.AddStrings(Eng);
+      edVo.Items.AddStrings(Eng);
     if OpVoice<>'' then
-      edSrc.ItemIndex:= edSrc.Items.IndexOf(OpVoice)
+      edVo.ItemIndex:= edVo.Items.IndexOf(OpVoice)
     else
-      if edSrc.Items.Count>0 then
-        edSrc.ItemIndex:= 0;
+      if edVo.Items.Count>0 then
+        edVo.ItemIndex:= 0;
 
-    edSpeed.MinValue:= GetMinSpeed;
-    edSpeed.MaxValue:= GetMaxSpeed;
-    edVol.MinValue:= GetMinVolume;
-    edVol.MaxValue:= GetMaxVolume;
+    edSpeed.MinValue:= MinSpeed;
+    edSpeed.MaxValue:= MaxSpeed;
+    edPitch.MinValue:= MinPitch;
+    edPitch.MaxValue:= MaxPitch;
+    edVol.MinValue:= MinVolume;
+    edVol.MaxValue:= MaxVolume;
     edSpeed.Value:= OpSpeed;
+    edPitch.Value:= OpPitch;
     edVol.Value:= OpVol;
 
     Result:= ShowModal=mrOk;
     if Result then
     begin
-      OpVoice:= edSrc.Text;
+      OpVoice:= edVo.Text;
       OpSpeed:= edSpeed.Value;
+      OpPitch:= edPitch.Value;
       OpVol:= edVol.Value;
     end;
   finally

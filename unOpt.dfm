@@ -1,10 +1,10 @@
 object fmOpt: TfmOpt
   Left = 430
   Top = 381
-  ActiveControl = edSrc
+  ActiveControl = edVo
   BorderStyle = bsDialog
   Caption = 'Speech'
-  ClientHeight = 183
+  ClientHeight = 168
   ClientWidth = 361
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,19 +25,26 @@ object fmOpt: TfmOpt
   end
   object Label2: TLabel
     Left = 8
-    Top = 48
+    Top = 56
     Width = 34
     Height = 13
     Caption = 'Speed:'
   end
   object Label3: TLabel
-    Left = 8
-    Top = 88
+    Left = 184
+    Top = 56
     Width = 38
     Height = 13
     Caption = 'Volume:'
   end
-  object edSrc: TComboBox
+  object Label4: TLabel
+    Left = 96
+    Top = 56
+    Width = 27
+    Height = 13
+    Caption = 'Pitch:'
+  end
+  object edVo: TComboBox
     Left = 8
     Top = 24
     Width = 345
@@ -48,27 +55,27 @@ object fmOpt: TfmOpt
   end
   object bOk: TButton
     Left = 152
-    Top = 152
+    Top = 136
     Width = 97
     Height = 23
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 3
+    TabOrder = 4
   end
   object bCan: TButton
     Left = 256
-    Top = 152
+    Top = 136
     Width = 97
     Height = 23
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 4
+    TabOrder = 5
   end
   object edSpeed: TSpinEdit
     Left = 8
-    Top = 64
+    Top = 72
     Width = 65
     Height = 22
     MaxValue = 0
@@ -77,8 +84,18 @@ object fmOpt: TfmOpt
     Value = 0
   end
   object edVol: TSpinEdit
-    Left = 8
-    Top = 104
+    Left = 184
+    Top = 72
+    Width = 65
+    Height = 22
+    MaxValue = 0
+    MinValue = 0
+    TabOrder = 3
+    Value = 0
+  end
+  object edPitch: TSpinEdit
+    Left = 96
+    Top = 72
     Width = 65
     Height = 22
     MaxValue = 0
