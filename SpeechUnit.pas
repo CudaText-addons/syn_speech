@@ -1,14 +1,18 @@
 {$J+}
+// Original code from https://sourceforge.net/projects/sapidll/
+// Modified by Alexey (SynWrite)
+
 unit SpeechUnit;
+
 interface
+
 uses Windows, SysUtils, Classes, msp, sapi4, ActiveX;
+
 type
-  DWORD = longword;
-  LPCTSTR = PAnsiChar;
   TSpeechEvent = procedure;
   TPositionEvent = procedure(Position: dword);
-  TEngineEvent = procedure(Number: integer; Name: string);
-  TErrorEvent = procedure(Text: string);
+  TEngineEvent = procedure(Number: integer; const Name: string);
+  TErrorEvent = procedure(const Text: string);
 
   TSpeechEvents = class(TComponent)
     procedure DoStart(Sender: TObject);
@@ -21,20 +25,20 @@ type
     procedure DoSpeed(Sender: TObject; Position: dword);
     procedure DoVolume(Sender: TObject; Position: dword);
     procedure DoPitch(Sender: TObject; Position: dword);
-    procedure DoSelectEngine(Sender: TObject; Number: integer; Name: string);
+    procedure DoSelectEngine(Sender: TObject; Number: integer; const Name: string);
     procedure DoStatusChange(Sender: TObject);
-    procedure DoError(Sender: TObject; Text: string);
+    procedure DoError(Sender: TObject; const Text: Widestring);
   end;
 
 
 // Speech functions
-function CreateSpeech: HResult; stdcall;
-procedure DestroySpeech; stdcall;
-procedure Speak(Text: string); stdcall;
-procedure SelectEngine(EngineName: string); stdcall;
-function GetEngineInfo(EngineName: string; var Info: TEngineInfo): byte; stdcall;
+function SpeechInit: HResult; stdcall;
+procedure SpeechDone; stdcall;
+procedure SpeechSpeak(const Text: Widestring); stdcall;
+procedure SpeechSelectEngine(const EngineName: string); stdcall;
+procedure GetEngineInfo(const EngineName: string; var Info: TEngineInfo); stdcall;
 function GetEngines: TStrings; stdcall;
-function GetEnginesCount: word; stdcall;
+//function GetEnginesCount: word; stdcall;
 function GetPitch: Word; stdcall;
 function GetSpeed: dword; stdcall;
 function GetVolume: dword; stdcall;
@@ -47,14 +51,18 @@ function GetMaxVolume: dword; stdcall;
 function GetMinPitch: Word; stdcall;
 function GetMinSpeed: dword; stdcall;
 function GetMinVolume: dword; stdcall;
-procedure Pause; stdcall;
-procedure Resume; stdcall;
-procedure Stop; stdcall;
+procedure SpeechPause; stdcall;
+procedure SpeechResume; stdcall;
+procedure SpeechStop; stdcall;
+
+{
 // For non Delphi languages
 procedure PSpeak(Text: LPCTSTR); stdcall;
 procedure PSelectEngine(EngineName: LPCTSTR); stdcall;
 procedure PSelectEngineNumber(EngineNumber: word); stdcall;
 function PGetEngines(number: word): LPCTSTR; stdcall;
+}
+
 // version 2.0 events
 procedure RegistOnStart(CallbackAddr: TSpeechEvent);
 procedure RegistOnPause(CallbackAddr: TSpeechEvent);
@@ -70,13 +78,12 @@ procedure RegistOnSelectEngine(CallbackAddr: TEngineEvent);
 procedure RegistOnStatusChange(CallbackAddr: TSpeechEvent);
 procedure RegistOnError(CallbackAddr: TErrorEvent);
 
-
-
 var
   Speech: TMultiSpeech = nil;
   SpeechCallbackEvents: TSpeechEvents = nil;
   
 implementation
+
 const
   _pause: boolean = false;
 var
@@ -95,14 +102,14 @@ var
   OnErrorAddr: TErrorEvent;
 
 
-function CreateSpeech: HResult;
+function SpeechInit: HResult;
 begin
   if not Assigned(Speech) then
   begin
     CoInitialize(nil);
-    CreateSpeech := 1;    
+    Result := 1;
     Speech := TMultiSpeech.Create(nil);
-    if Speech <> nil then CreateSpeech := 0;
+    if Speech <> nil then SpeechInit := 0;
     SpeechCallbackEvents := TSpeechEvents.Create(nil);
     Speech.OnStart := SpeechCallbackEvents.DoStart;
     Speech.OnPause := SpeechCallbackEvents.DoPause;
@@ -118,23 +125,24 @@ begin
     Speech.OnStatusChange := SpeechCallbackEvents.DoStatusChange;
     Speech.OnError := SpeechCallbackEvents.DoError;
   end
-  else CreateSpeech := 0;
+  else
+    Result := 0;
 end;
 
-procedure DestroySpeech;
+procedure SpeechDone;
 begin
   if Speech = nil then Exit;
   FreeAndNil(Speech);
 end;
 
 
-procedure Speak(Text: string);
+procedure SpeechSpeak(const Text: Widestring);
 begin
   if Speech = nil then Exit;
   Speech.Speak(Text);
 end;
 
-procedure SelectEngine(EngineName: string);
+procedure SpeechSelectEngine(const EngineName: string);
 begin
   if Speech = nil then Exit;
   Speech.Select(EngineName);
@@ -145,16 +153,15 @@ begin
   if Speech = nil then
     Result:= nil
   else
-    Result := Speech.Engines;
+    Result:= Speech.Engines;
 end;
 
-function GetEngineInfo(EngineName: string; var Info: TEngineInfo): byte; stdcall;
+procedure GetEngineInfo(const EngineName: string; var Info: TEngineInfo); stdcall;
 begin
   Info.Name:= '';
   Info.SpInterface:= 0;
   Info.Gender:= '';
   Info.Language:= '';
-  Result:= 1;
 
   if Speech = nil then Exit;
   Info := Speech.EngineInfo;
@@ -239,38 +246,39 @@ begin
 end;
 
 
-procedure Pause;
+procedure SpeechPause;
 begin
   if Speech = nil then Exit;
   _Pause := true;
   Speech.Pause;
 end;
 
-procedure Resume;
+procedure SpeechResume;
 begin
   if Speech = nil then Exit;
   _Pause := false;
   Speech.Resume;
 end;
 
-procedure Stop;
+procedure SpeechStop;
 begin
   if Speech = nil then Exit;
   Speech.Stop;
 end;
 
+(*
 //for non Delphi compilers
 
 procedure PSpeak(Text: LPCTSTR); stdcall;
 begin
   if Speech = nil then Exit;
-  Speak(string(Text));
+  SpeechSpeak(string(Text));
 end;
 
 procedure PSelectEngine(EngineName: LPCTSTR); stdcall;
 begin
   if Speech = nil then Exit;
-  SelectEngine(string(EngineName));
+  SpeechSelectEngine(string(EngineName));
 end;
 
 function GetEnginesCount: word; stdcall;
@@ -288,8 +296,9 @@ end;
 procedure PSelectEngineNumber(EngineNumber: word); stdcall;
 begin
   if Speech = nil then Exit;
-  SelectEngine(Speech.Engines[EngineNumber]);
+  SpeechSelectEngine(Speech.Engines[EngineNumber]);
 end;
+*)
 
 //version 2.0 events
 
@@ -411,7 +420,7 @@ begin
   if assigned(OnPitchAddr) then OnPitchAddr(Position);
 end;
 
-procedure TSpeechEvents.DoSelectEngine(Sender: TObject; Number: integer; Name: string);
+procedure TSpeechEvents.DoSelectEngine(Sender: TObject; Number: integer; const Name: string);
 begin
   if assigned(OnSelectEngineAddr) then OnSelectEngineAddr(Number, Name);
 end;
@@ -421,7 +430,7 @@ begin
   if assigned(OnStatusChangeAddr) then OnStatusChangeAddr;
 end;
 
-procedure TSpeechEvents.DoError(Sender: TObject; Text: string);
+procedure TSpeechEvents.DoError(Sender: TObject; const Text: Widestring);
 begin
   if assigned(OnErrorAddr) then OnErrorAddr(Text);
 end;

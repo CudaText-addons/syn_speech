@@ -4,8 +4,8 @@ object fmOpt: TfmOpt
   ActiveControl = edSrc
   BorderStyle = bsDialog
   Caption = 'Speech'
-  ClientHeight = 186
-  ClientWidth = 377
+  ClientHeight = 183
+  ClientWidth = 361
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -40,14 +40,14 @@ object fmOpt: TfmOpt
   object edSrc: TComboBox
     Left = 8
     Top = 24
-    Width = 361
+    Width = 345
     Height = 21
     Style = csDropDownList
     ItemHeight = 13
     TabOrder = 0
   end
   object bOk: TButton
-    Left = 168
+    Left = 152
     Top = 152
     Width = 97
     Height = 23
@@ -57,7 +57,7 @@ object fmOpt: TfmOpt
     TabOrder = 3
   end
   object bCan: TButton
-    Left = 272
+    Left = 256
     Top = 152
     Width = 97
     Height = 23

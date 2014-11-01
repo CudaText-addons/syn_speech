@@ -42,7 +42,7 @@ begin
   end;
 end;
 
-procedure DoSay(const S: string);
+procedure DoSay(const S: Widestring);
 const
   cMinLen = 2;
   cMaxShow = 1500;
@@ -52,27 +52,27 @@ var
 begin
   if Length(S)<cMinLen then
   begin
-    MessageBox(0, 'Text not selected', cCaption, mb_taskmodal or mb_ok or mb_iconwarning);
+    MessageBoxW(0, 'Text not selected', cCaption, mb_taskmodal or mb_ok or mb_iconwarning);
     Exit
   end;
 
-  CreateSpeech;
+  SpeechInit;
   L:= GetEngines;
   if (L=nil) or (L.Count<1) then Exit;
   if OpVoice='' then
     Eng:= L[0]
   else
     Eng:= OpVoice;
-  SelectEngine(Eng);
+  SpeechSelectEngine(Eng);
 
   if OpSpeed>0 then
     SetSpeed(OpSpeed);
   if OpVol>0 then
     SetVolume(OpVol);
 
-  Speak(S);
-  MessageBox(0, PChar(Copy(S, 1, cMaxShow)), cCaption, mb_taskmodal or mb_ok {or mb_iconinformation});
-  Stop; //dll unloads after this, so stop
+  SpeechSpeak(S);
+  MessageBoxW(0, PWChar(Copy(S, 1, cMaxShow)), cCaption, mb_taskmodal or mb_ok {or mb_iconinformation});
+  SpeechStop; //dll unloads after this, so stop
 end;
 
 function EdText: Widestring;

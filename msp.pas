@@ -24,21 +24,14 @@ const
   MinPitch = 0;
 
 
-
 type
-
-
-
-
   TEngineState = set of (esSpeak, esPause, esStop);
-
   TEngineInfo = record
     Name: string;
+    Gender: string;
+    Language: string;
     SpInterface: byte;
-    Gender: string[10];
-    Language: string[25];
   end;
-
 
 
   TTTSBufNotifySink = class(TInterfacedObject, ITTSBufNotifySink)
@@ -52,9 +45,9 @@ type
     constructor Create(AOwner: TComponent);
   end;
 
-  TSelectEngineEvent = procedure(Sender: TObject; Number: integer; Name: string) of object;
+  TSelectEngineEvent = procedure(Sender: TObject; Number: integer; const Name: string) of object;
   TPositionEvent = procedure(Sender: TObject; Position: dword) of object;
-  TErrorEvent = procedure(Sender: TObject; Text: string) of object;
+  TErrorEvent = procedure(Sender: TObject; const Text: Widestring) of object;
 
   TMultiSpeech = class(TComponent)
   protected
@@ -97,11 +90,11 @@ type
 
     function GetPitch: integer;
     procedure SetPitch(Value: integer);
-    procedure AddError(Text: string);
+    procedure AddError(const Text: Widestring);
 
     procedure DoStop;
   public
-    BufferText: string;
+    BufferText: Widestring;
     BufferPosition: dword;
     FLastPosition: longint;
     CurrentInterface: integer;
@@ -110,12 +103,12 @@ type
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Speak(Text: string);
+    procedure Speak(const Text: Widestring);
     procedure Stop;
     procedure Pause;
     procedure Resume;
     procedure Select(Number: integer); overload;
-    procedure Select(EngineName: string); overload;
+    procedure Select(const EngineName: string); overload;
 
 
   published
@@ -248,7 +241,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TMultiSpeech.AddError(Text: string);
+procedure TMultiSpeech.AddError(const Text: Widestring);
 begin
   ErrorList.Add(Text);
   if Assigned(OnError) then OnError(Self, Text);
@@ -329,7 +322,7 @@ begin
   end;
 end;
 
-procedure TMultiSpeech.Select(EngineName: string);
+procedure TMultiSpeech.Select(const EngineName: string);
 var
   Count: integer;
 begin
@@ -341,8 +334,9 @@ begin
     end;
 end;
 
-procedure TMultiSpeech.Speak(Text: string);
+procedure TMultiSpeech.Speak(const Text: Widestring);
 var
+  TextA: string;
   SData: TSData;
   Flags: TOleEnum;
 begin
@@ -354,8 +348,7 @@ begin
     SAPI5Code:
       begin
         try
-         Flags:=
-           SVSFlagsAsync;
+         Flags:= SVSFlagsAsync;
          SAPI5.DefaultInterface.Speak(Text, Flags);
         except
          AddError('SAPI 5 Speak fault: ');
@@ -363,8 +356,9 @@ begin
       end;
     SAPI4Code:
       begin
-        SData.dwSize := Length(Text) + 1;
-        SData.pData := PChar(Text);
+        TextA:= Text;
+        SData.dwSize := Length(TextA) + 1;
+        SData.pData := PChar(TextA);
         TTSCentral.TextData(CHARSET_TEXT, 1, SData, Pointer(TTSBufNotifySink), IID_ITTSBufNotifySink);
       end;
   end;
@@ -427,8 +421,8 @@ end;
 
 procedure TMultiSpeech.SetSpeed(Value: integer);
 var
-  Text: string;
-  max, min, i: cardinal;
+  Text: Widestring;
+  max, min: cardinal;
 begin
   if Value < MinSpeed then Value := MinSpeed;
   if Value > MaxSpeed then Value := MaxSpeed;
@@ -499,7 +493,7 @@ end;
 
 procedure TMultiSpeech.SetPitch(Value: integer);
 var
-  Text: string;
+  Text: Widestring;
   max, min: word;
 begin
   if Value < 0 then Value := 0;
@@ -509,11 +503,9 @@ begin
     NotSelected: Exit;
     SAPI5Code:
       begin
-
         Stop;
         Text := '<pitch absmiddle="' + inttostr(Value - 10) + '">';
         Speak(Text);
-
       end;
 
     SAPI4Code:

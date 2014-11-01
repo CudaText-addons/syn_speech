@@ -35,7 +35,7 @@ var
   i: Integer;
   Eng: TStrings;
 begin
-  CreateSpeech;
+  SpeechInit;
   Eng:= GetEngines;
 
   with TfmOpt.Create(nil) do
