@@ -6,7 +6,7 @@ unit SpeechApi;
 
 interface
 
-uses Windows, SysUtils, Classes, sapi4, SpeechMulti, ActiveX;
+uses Windows, SysUtils, Classes, SpeechMulti, ActiveX;
 
 type
   TSpeechEvent = procedure;
@@ -162,12 +162,11 @@ end;
 procedure GetEngineInfo(const EngineName: string; var Info: TEngineInfo); stdcall;
 begin
   Info.Name:= '';
-  Info.SpInterface:= 0;
   Info.Gender:= '';
   Info.Language:= '';
 
-  if Speech = nil then Exit;
-  Info := Speech.EngineInfo;
+  if Speech <> nil then
+    Info := Speech.EngineInfo;
 end;
 
 function GetPitch: Word; stdcall;

@@ -24,21 +24,21 @@ object fmOpt: TfmOpt
     Caption = 'Voice:'
   end
   object Label2: TLabel
-    Left = 8
+    Left = 96
     Top = 56
     Width = 34
     Height = 13
     Caption = 'Speed:'
   end
   object Label3: TLabel
-    Left = 184
+    Left = 8
     Top = 56
     Width = 38
     Height = 13
     Caption = 'Volume:'
   end
   object Label4: TLabel
-    Left = 96
+    Left = 184
     Top = 56
     Width = 27
     Height = 13
@@ -74,6 +74,16 @@ object fmOpt: TfmOpt
     TabOrder = 5
   end
   object edSpeed: TSpinEdit
+    Left = 96
+    Top = 72
+    Width = 65
+    Height = 22
+    MaxValue = 0
+    MinValue = 0
+    TabOrder = 2
+    Value = 0
+  end
+  object edVol: TSpinEdit
     Left = 8
     Top = 72
     Width = 65
@@ -83,7 +93,7 @@ object fmOpt: TfmOpt
     TabOrder = 1
     Value = 0
   end
-  object edVol: TSpinEdit
+  object edPitch: TSpinEdit
     Left = 184
     Top = 72
     Width = 65
@@ -91,16 +101,6 @@ object fmOpt: TfmOpt
     MaxValue = 0
     MinValue = 0
     TabOrder = 3
-    Value = 0
-  end
-  object edPitch: TSpinEdit
-    Left = 96
-    Top = 72
-    Width = 65
-    Height = 22
-    MaxValue = 0
-    MinValue = 0
-    TabOrder = 2
     Value = 0
   end
 end
