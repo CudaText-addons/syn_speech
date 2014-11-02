@@ -12,7 +12,6 @@ uses
 const
   IID_ISpeechObjectToken: TGUID = '{C74A3ADC-B727-4500-A84A-B526721C8B8C}';
   SVSFlagsAsync = $00000001;
-  SVSFPurgeBeforeSpeak = 2;  
 type
   ISpeechObjectToken = interface;
   ISpeechDataKey = interface;

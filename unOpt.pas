@@ -38,7 +38,7 @@ var
   Eng: TStrings;
 begin
   SpeechInit;
-  Eng:= GetEngines;
+  Eng:= GetVoices;
 
   with TfmOpt.Create(nil) do
   try

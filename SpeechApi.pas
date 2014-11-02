@@ -35,9 +35,9 @@ type
 function SpeechInit: HResult; stdcall;
 procedure SpeechDone; stdcall;
 procedure SpeechSpeak(const Text: Widestring); stdcall;
-procedure SpeechSelectEngine(const EngineName: string); stdcall;
+procedure SetVoice(const Name: string); stdcall;
 procedure GetEngineInfo(const EngineName: string; var Info: TEngineInfo); stdcall;
-function GetEngines: TStrings; stdcall;
+function GetVoices: TStrings; stdcall;
 function GetPitch: Word; stdcall;
 function GetSpeed: dword; stdcall;
 function GetVolume: dword; stdcall;
@@ -145,18 +145,18 @@ begin
   Speech.Speak(Text);
 end;
 
-procedure SpeechSelectEngine(const EngineName: string);
+procedure SetVoice(const Name: string);
 begin
   if Speech = nil then Exit;
-  Speech.Select(EngineName);
+  Speech.SetVoice(Name);
 end;
 
-function GetEngines: TStrings;
+function GetVoices: TStrings;
 begin
   if Speech = nil then
     Result:= nil
   else
-    Result:= Speech.Engines;
+    Result:= Speech.FVoices;
 end;
 
 procedure GetEngineInfo(const EngineName: string; var Info: TEngineInfo); stdcall;

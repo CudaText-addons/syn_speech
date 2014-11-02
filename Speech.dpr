@@ -60,19 +60,20 @@ begin
   end;
 
   SpeechInit;
-  L:= GetEngines;
+  L:= GetVoices;
   if (L=nil) or (L.Count=0) then Exit;
   if OpVoice='' then
     OpVoice:= L[0];
-  SpeechSelectEngine(OpVoice);
+  SetVoice(OpVoice);
 
   SetSpeed(OpSpeed);
   SetPitch(OpPitch);
   SetVolume(OpVol);
 
   SpeechSpeak(S);
-  MessageBoxW(0, PWChar(Copy(S, 1, cMaxShow)), cCaption, mb_taskmodal or mb_ok {or mb_iconinformation});
-  SpeechStop; //dll unloads after this, so stop
+  //not needed in syncmode
+  //MessageBoxW(0, 'Playing', cCaption, mb_taskmodal or mb_ok {or mb_iconinformation});
+  SpeechStop;
 end;
 
 function EdText: Widestring;
@@ -81,14 +82,14 @@ const
 var
   buf: array[0..cSize-1] of WideChar;
   bufSize: Integer;
-  r: Integer;
+  res: Integer;
 begin
   Result:= '';
 
   FillChar(buf, SizeOf(buf), 0);
   bufSize:= cSize;
-  r:= _ActionProc(nil, cActionGetText, Pointer(cSynIdSelectedText), @buf, @bufSize, nil);
-  if r=cSynOk then
+  res:= _ActionProc(nil, cActionGetText, Pointer(cSynIdSelectedText), @buf, @bufSize, nil);
+  if res=cSynOk then
     Result:= buf;
 end;
 

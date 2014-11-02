@@ -9,6 +9,8 @@ uses
   Windows, SysUtils, Classes, sapi5cut, ActiveX;
 
 const
+  SpeechAsync = false;
+
   DefaultVolume = 80;
   DefaultSpeed = 10;
   DefaultPitch = 0;
@@ -73,17 +75,17 @@ type
     BufferText: Widestring;
     BufferPosition: dword;
     FLastPosition: longint;
-    ErrorList: TStringList;
-    Engines: TStringList;
+    FErrorList: TStringList;
+    FVoices: TStringList;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Speak(const TextW: Widestring);
+    procedure Speak(const Text: Widestring);
     procedure Stop;
     procedure Pause;
     procedure Resume;
-    procedure Select(Number: integer); overload;
-    procedure Select(const EngineName: string); overload;
+    procedure SetVoice(Number: integer); overload;
+    procedure SetVoice(const Name: string); overload;
 
   published
     property Speed: integer read FSpeed write SetSpeed default DefaultSpeed;
@@ -124,15 +126,15 @@ begin
 
   EngineState := [esStop];
   if Assigned(OnStatusChange) then OnStatusChange(Self);
-  ErrorList := TStringList.Create;
-  Engines := TStringList.Create;
+  FErrorList := TStringList.Create;
+  FVoices := TStringList.Create;
   try
     SAPI5 := TSpVoice.Create(Self);
     SAPI5.OnStartStream := StartStream;
     SAPI5.OnEndStream := EndStream;
     SAPI5.OnWord := SpWord;
     for EngineCount := 0 to SAPI5.GetVoices('', '').count - 1 do
-      Engines.Add(SAPI5.GetVoices('', '').Item(EngineCount).GetDescription(0));
+      FVoices.Add(SAPI5.GetVoices('', '').Item(EngineCount).GetDescription(0));
   except
     AddError('SAPI 5 initialization fault');
   end;
@@ -141,16 +143,17 @@ end;
 destructor TMultiSpeech.Destroy;
 begin
   Stop;
-  SAPI5.Destroy;
-  Engines.Destroy;
-  ErrorList.Destroy;
+
+  FreeAndNil(SAPI5);
+  FreeAndNil(FVoices);
+  FreeAndNil(FErrorList);
 
   inherited Destroy;
 end;
 
 procedure TMultiSpeech.AddError(const Text: Widestring);
 begin
-  ErrorList.Add(Text);
+  FErrorList.Add(Text);
   if Assigned(OnError) then OnError(Self, Text);
 end;
 
@@ -161,13 +164,13 @@ begin
   SAPI5.Disconnect;
 end;
 
-procedure TMultiSpeech.Select(Number: integer);
+procedure TMultiSpeech.SetVoice(Number: integer);
 var
   pLanguageName: array[0..Pred(80)] of Char;
 begin
   DoStop;
   ZeroMemory(@EngineInfo, SizeOf(EngineInfo));
-  if Number > Engines.Count - 1 then Exit;
+  if Number > FVoices.Count - 1 then Exit;
   try
     if Number < SAPI5.GetVoices('', '').Count then
     begin
@@ -178,7 +181,7 @@ begin
       FEngineInfo.Language := string(PLanguageName);
     end;
 
-    FEngineInfo.Name := Engines[Number];
+    FEngineInfo.Name := FVoices[Number];
 
     if Assigned(OnSelectEngine) then OnSelectEngine(Self, Number, FEngineInfo.Name);
 
@@ -187,22 +190,25 @@ begin
   end;
 end;
 
-procedure TMultiSpeech.Select(const EngineName: string);
+procedure TMultiSpeech.SetVoice(const Name: string);
 begin
-  Select(Engines.IndexOf(EngineName));
+  SetVoice(FVoices.IndexOf(Name));
 end;
 
-procedure TMultiSpeech.Speak(const TextW: Widestring);
+procedure TMultiSpeech.Speak(const Text: Widestring);
 var
   Flags: TOleEnum;
 begin
-  if TextW = '' then Exit;
+  if Text = '' then Exit;
   if Assigned(OnUserStart) then OnUserStart(Self);
   BufferPosition := 0;
 
   try
-    Flags:= SVSFlagsAsync;
-    SAPI5.DefaultInterface.Speak(TextW, Flags);
+    if SpeechAsync then
+      Flags:= SVSFlagsAsync
+    else
+      Flags:= 0;
+    SAPI5.DefaultInterface.Speak(Text, Flags);
   except
     AddError('SAPI 5 Speak fault: ');
   end;
@@ -261,9 +267,6 @@ begin
   if Value > MaxSpeed then Value := MaxSpeed;
   FSpeed := Value;
 
-  {Stop;
-  Text := '<RATE ABSSPEED="' + inttostr(Value - 10) + '">' + copy(FText, FLastPosition, length(FText));
-  Speak(Text);}
   Stop;
   Text := '<RATE ABSSPEED="' + inttostr(Value - 10) + '">';
   Speak(Text);
