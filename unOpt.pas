@@ -4,20 +4,20 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Spin;
+  Dialogs, StdCtrls, Spin, ComCtrls;
 
 type
   TfmOpt = class(TForm)
-    edVo: TComboBox;
+    edVoice: TComboBox;
     Label1: TLabel;
     bOk: TButton;
     bCan: TButton;
     Label2: TLabel;
-    edSpeed: TSpinEdit;
-    edVol: TSpinEdit;
     Label3: TLabel;
     Label4: TLabel;
-    edPitch: TSpinEdit;
+    edVol: TTrackBar;
+    edSpeed: TTrackBar;
+    edPitch: TTrackBar;
   private
     { Private declarations }
   public
@@ -43,30 +43,24 @@ begin
   with TfmOpt.Create(nil) do
   try
     if Eng<>nil then
-      edVo.Items.AddStrings(Eng);
+      edVoice.Items.AddStrings(Eng);
     if OpVoice<>'' then
-      edVo.ItemIndex:= edVo.Items.IndexOf(OpVoice)
+      edVoice.ItemIndex:= edVoice.Items.IndexOf(OpVoice)
     else
-      if edVo.Items.Count>0 then
-        edVo.ItemIndex:= 0;
+      if edVoice.Items.Count>0 then
+        edVoice.ItemIndex:= 0;
 
-    edSpeed.MinValue:= MinSpeed;
-    edSpeed.MaxValue:= MaxSpeed;
-    edPitch.MinValue:= MinPitch;
-    edPitch.MaxValue:= MaxPitch;
-    edVol.MinValue:= MinVolume;
-    edVol.MaxValue:= MaxVolume;
-    edSpeed.Value:= OpSpeed;
-    edPitch.Value:= OpPitch;
-    edVol.Value:= OpVol;
+    edSpeed.Position:= OpSpeed;
+    edPitch.Position:= OpPitch;
+    edVol.Position:= OpVol;
 
     Result:= ShowModal=mrOk;
     if Result then
     begin
-      OpVoice:= edVo.Text;
-      OpSpeed:= edSpeed.Value;
-      OpPitch:= edPitch.Value;
-      OpVol:= edVol.Value;
+      OpVoice:= edVoice.Text;
+      OpSpeed:= edSpeed.Position;
+      OpPitch:= edPitch.Position;
+      OpVol:= edVol.Position;
     end;
   finally
     Free

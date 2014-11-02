@@ -9,8 +9,6 @@ uses
   Windows, SysUtils, Classes, sapi5cut, ActiveX;
 
 const
-  SpeechAsync = false;
-
   DefaultVolume = 80;
   DefaultSpeed = 10;
   DefaultPitch = 0;
@@ -80,7 +78,7 @@ type
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Speak(const Text: Widestring);
+    procedure Speak(const Text: Widestring; Async: boolean);
     procedure Stop;
     procedure Pause;
     procedure Resume;
@@ -195,7 +193,7 @@ begin
   SetVoice(FVoices.IndexOf(Name));
 end;
 
-procedure TMultiSpeech.Speak(const Text: Widestring);
+procedure TMultiSpeech.Speak(const Text: Widestring; Async: boolean);
 var
   Flags: TOleEnum;
 begin
@@ -204,7 +202,7 @@ begin
   BufferPosition := 0;
 
   try
-    if SpeechAsync then
+    if Async then
       Flags:= SVSFlagsAsync
     else
       Flags:= 0;
@@ -269,7 +267,7 @@ begin
 
   Stop;
   Text := '<RATE ABSSPEED="' + inttostr(Value - 10) + '">';
-  Speak(Text);
+  Speak(Text, true);
 
   BufferPosition := length(BufferText) - length(Text);
   if Assigned(OnSpeed) then OnSpeed(Self, value);
@@ -295,7 +293,7 @@ begin
 
   Stop;
   Text := '<pitch absmiddle="' + inttostr(Value - 10) + '">';
-  Speak(Text);
+  Speak(Text, true);
 
   BufferPosition := length(BufferText) - length(Text);
   if Assigned(OnPitch) then OnPitch(Self, value);

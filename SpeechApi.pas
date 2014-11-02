@@ -34,7 +34,7 @@ type
 // Speech functions
 function SpeechInit: HResult; stdcall;
 procedure SpeechDone; stdcall;
-procedure SpeechSpeak(const Text: Widestring); stdcall;
+procedure SpeechSpeak(const Text: Widestring; Async: boolean); stdcall;
 procedure SetVoice(const Name: string); stdcall;
 procedure GetEngineInfo(const EngineName: string; var Info: TEngineInfo); stdcall;
 function GetVoices: TStrings; stdcall;
@@ -139,10 +139,10 @@ begin
 end;
 
 
-procedure SpeechSpeak(const Text: Widestring);
+procedure SpeechSpeak(const Text: Widestring; Async: boolean);
 begin
   if Speech = nil then Exit;
-  Speech.Speak(Text);
+  Speech.Speak(Text, Async);
 end;
 
 procedure SetVoice(const Name: string);

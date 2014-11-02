@@ -70,8 +70,7 @@ begin
   SetPitch(OpPitch);
   SetVolume(OpVol);
 
-  SpeechSpeak(S);
-  //not needed in syncmode
+  SpeechSpeak(S, false);
   //MessageBoxW(0, 'Playing', cCaption, mb_taskmodal or mb_ok {or mb_iconinformation});
   SpeechStop;
 end;
